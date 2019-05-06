@@ -8,7 +8,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0]).
+-export([start_link/0, start_child/2]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -22,6 +22,9 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
+start_child(Value, LeaseTime) ->
+    supervisor:start_child(?SERVER, [Value, LeaseTime]).
+
 %%====================================================================
 %% Supervisor callbacks
 %%====================================================================
@@ -31,7 +34,12 @@ start_link() ->
 %% Before OTP 18 tuples must be used to specify a child. e.g.
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, {{one_for_all, 0, 1}, []}}.
+    SupFlags = #{strategy => simple_one_for_one, intensity => 0, period => 1},
+    ChildSpecs = [#{id => simple_cache_element,
+                    start => {simple_cache_element, start_link, []},
+                    restart => temporary,
+                    shutdown => brutal_kill}],
+    {ok, {SupFlags, ChildSpecs}}.
 
 %%====================================================================
 %% Internal functions
