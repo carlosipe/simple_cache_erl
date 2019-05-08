@@ -5,10 +5,12 @@
 insert(Key, Value) ->
     case simple_cache_store:lookup(Key) of
         {ok, Pid} -> 
-            simple_cache_element:replace(Pid, Value);
+            simple_cache_element:replace(Pid, Value),
+            simple_cache_event:replace(Key, Value);
         {error, _} -> 
             {ok, Pid} = simple_cache_element:create(Value),
-            simple_cache_store:insert(Key, Pid)
+            simple_cache_store:insert(Key, Pid),
+            simple_cache_event:create(Key, Value)
     end.
 
 lookup(Key) ->

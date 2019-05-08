@@ -25,7 +25,7 @@ start_link(Value, LeaseTime) ->
     gen_server:start_link(?SERVER, [Value, LeaseTime], []).
 
 create(Value, LeaseTime) ->
-    simple_cache_sup:start_child(Value, LeaseTime).
+    simple_cache_element_sup:start_child(Value, LeaseTime).
 
 create(Value) ->
     create(Value, ?DEFAULT_LEASE_TIME).
